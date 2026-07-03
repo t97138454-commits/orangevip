@@ -559,15 +559,12 @@
       hostEmail: "sw717.choi@samsung.com",
 
       // ── PHOTOS ──────────────────────────────────────────────
-      //  Live workflow: on the day, drop the photos into your GitHub
-      //  repo's photo folder. They appear here automatically — no code edit.
-      //  (Photos load from the SAME site, so guests download with NO login.)
-      github: {
-        user: "t97138454-commits",        // GitHub username
-        repo: "orangevip",                // repo that hosts this page (GitHub Pages)
-        dir:  "photos"                    // folder in the repo holding this visit's photos
-      },
-      photos: [],                          // optional manual list, e.g. ["photos/01.jpg"] — skips auto-scan
+      //  Live workflow: name the day's photos 1.jpg, 2.jpg, 3.jpg ... and
+      //  upload them into the repo's "photos" folder. They appear here
+      //  automatically — no code edit, no login for guests.
+      //  (Loaded from the SAME site, so there is no API limit and no login.)
+      photoDir: "photos",                  // folder in the repo holding this visit's photos
+      photos: [],                          // optional manual list, e.g. ["photos/a.jpg"] — skips numbered scan
       zipName: "Samsung-Gumi-Visit-Photos.zip"
     };
     // ─────────────────────────────────────────────────────────────
@@ -613,50 +610,51 @@
       emailEl.href = "mailto:" + VISIT_CONFIG.hostEmail;
     }
 
-    // ── Photos: no-login download from the same GitHub site ──────────
-    const nameOf = (path) => path.split("/").pop();
+    // ── Photos: no-login download from the same site (no GitHub API) ──
+    const nameOf = (path) => decodeURIComponent(path.split("/").pop());
 
-    // Get the photo list: manual array wins, otherwise auto-scan the GitHub folder.
-    const getPhotoPaths = () => {
+    // Read the photo list from a same-origin manifest.json (built by GitHub Actions).
+    // No GitHub API => no rate limit, works on any network. Photos keep their real names.
+    const getPhotos = async () => {
+      const dir = (VISIT_CONFIG.photoDir || "photos").replace(/^\/+|\/+$/g, "");
+
+      // Manual override: config.photos = ["photos/a.jpg", ...]
       if (Array.isArray(VISIT_CONFIG.photos) && VISIT_CONFIG.photos.length) {
-        return Promise.resolve(VISIT_CONFIG.photos);
+        return VISIT_CONFIG.photos.map((p) => ({ name: nameOf(p), url: p }));
       }
-      const gh = VISIT_CONFIG.github || {};
-      if (!gh.user || !gh.repo || !gh.dir ||
-          gh.user === "YOUR_GITHUB_USERNAME" || gh.repo === "YOUR_REPO_NAME") {
-        return Promise.resolve([]);
+
+      try {
+        const res = await fetch(dir + "/manifest.json", { cache: "no-store" });
+        if (!res.ok) return [];
+        const names = await res.json();
+        return (Array.isArray(names) ? names : [])
+          .filter((n) => typeof n === "string" && /\.(jpe?g|png|webp|gif)$/i.test(n))
+          // Encode the file name so spaces / non-ASCII names resolve as valid URLs.
+          .map((n) => ({ name: n, url: dir + "/" + encodeURIComponent(n) }));
+      } catch (e) {
+        return [];
       }
-      const dir = gh.dir.replace(/^\/+|\/+$/g, "");
-      const api = "https://api.github.com/repos/" + gh.user + "/" + gh.repo + "/contents/" + dir;
-      return fetch(api)
-        .then((r) => (r.ok ? r.json() : []))
-        .then((items) => (Array.isArray(items) ? items : [])
-          .filter((it) => it.type === "file" && /\.(jpe?g|png|webp|gif)$/i.test(it.name))
-          .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
-          // Load via a SAME-ORIGIN relative path so downloads need no login and no CORS.
-          .map((it) => dir + "/" + it.name))
-        .catch(() => []);
     };
 
     const gallery = $("[data-gallery]");
     const statusEl = $("[data-photo-status]");
     const downloadBtn = $("[data-download-all]");
 
-    const renderPhotos = (paths) => {
-      if (!paths.length) {
+    const renderPhotos = (items) => {
+      if (!items.length) {
         if (statusEl) statusEl.textContent = "Your photos will appear here shortly. Please check back in a few minutes.";
         if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = "Photos Coming Soon"; }
         return;
       }
 
       // Thumbnails — each one downloads on tap (same-origin => download attribute works).
-      paths.forEach((src, i) => {
+      items.forEach((it, i) => {
         const a = document.createElement("a");
         a.className = "gallery-item";
-        a.href = src;
-        a.download = nameOf(src);
+        a.href = it.url;
+        a.download = it.name;
         const im = document.createElement("img");
-        im.src = src;
+        im.src = it.url;
         im.alt = "Visit photo " + (i + 1);
         im.loading = "lazy";
         a.appendChild(im);
@@ -667,12 +665,12 @@
       if (statusEl) statusEl.textContent = "Tap any photo to save it, or download them all as a ZIP below.";
       if (downloadBtn) {
         downloadBtn.disabled = false;
-        downloadBtn.textContent = "Download All Photos (" + paths.length + ")";
-        downloadBtn.addEventListener("click", () => downloadAllAsZip(paths));
+        downloadBtn.textContent = "Download All Photos (" + items.length + ")";
+        downloadBtn.addEventListener("click", () => downloadAllAsZip(items));
       }
     };
 
-    const downloadAllAsZip = (paths) => {
+    const downloadAllAsZip = (items) => {
       if (typeof JSZip === "undefined") {
         alert("The ZIP download isn't available right now. Please tap each photo to save it individually.");
         return;
@@ -681,8 +679,8 @@
       downloadBtn.disabled = true;
       downloadBtn.textContent = "Preparing ZIP…";
       const zip = new JSZip();
-      Promise.all(paths.map((src) =>
-        fetch(src).then((r) => r.blob()).then((b) => zip.file(nameOf(src), b))
+      Promise.all(items.map((it) =>
+        fetch(it.url).then((r) => r.blob()).then((b) => zip.file(it.name, b))
       ))
         .then(() => zip.generateAsync({ type: "blob" }))
         .then((blob) => {
@@ -704,7 +702,7 @@
         });
     };
 
-    if (gallery) getPhotoPaths().then(renderPhotos);
+    if (gallery) getPhotos().then(renderPhotos);
   </script>
 </body>
 </html>
