@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VIP corporate tour keepsake page for Samsung Electronics Gumi.">
+  <title>Welcome to Samsung Electronics Gumi</title>
+  <style>
+    :root {
+      --samsung-blue: #1428a0;
+      --deep-blue: #07163f;
+      --orange: #ff7900;
+      --text: #15171c;
+      --muted: #5f6670;
+      --soft-muted: #8b929d;
+      --line: #e6e9f0;
+      --page: #f6f8fb;
+      --hero-image: url("https://news.samsung.com/medialibrary/download/58653/medium");
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--page); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background: var(--page);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    .hero {
+      position: relative;
+      min-height: 460px;
+      padding: 34px 22px 150px;
+      overflow: hidden;
+      color: #ffffff;
+      isolation: isolate;
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+    }
+
+    .hero::before {
+      z-index: -2;
+      background-image: var(--hero-image);
+      background-position: center 38%;
+      background-size: cover;
+    }
+
+    .hero::after {
+      z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(7, 22, 63, 0.5), rgba(7, 22, 63, 0.18) 42%, rgba(246, 248, 251, 0.96) 100%),
+        linear-gradient(90deg, rgba(7, 22, 63, 0.72), rgba(7, 22, 63, 0.18) 52%, rgba(7, 22, 63, 0.3));
+    }
+
+    .hero-inner {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 84px;
+    }
+
+    .site-name {
+      color: rgba(255, 255, 255, 0.94);
+      font-size: 0.86rem;
+      font-weight: 650;
+      letter-spacing: 0.03em;
+    }
+
+    .visitor-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 100%;
+      padding: 7px 12px 7px 7px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 14px 38px rgba(7, 22, 63, 0.16);
+      backdrop-filter: blur(14px);
+      text-align: left;
+    }
+
+    .visitor-logo {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .visitor-logo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .logo-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 0.63rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .chip-text {
+      display: block;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .chip-name {
+      display: block;
+      margin-top: 1px;
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 650;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    h1, h2, p { margin: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin: 0 auto;
+      color: #ffffff;
+      font-size: clamp(2.35rem, 6vw, 3.75rem);
+      font-weight: 650;
+      line-height: 1.08;
+      text-shadow: 0 18px 52px rgba(7, 22, 63, 0.36);
+    }
+
+    .subtitle {
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.94);
+      font-size: 1.12rem;
+      font-weight: 550;
+      text-shadow: 0 10px 36px rgba(7, 22, 63, 0.34);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 900px;
+      margin: -96px auto 0;
+      padding: 0 22px 42px;
+      text-align: center;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 28px 76px rgba(7, 22, 63, 0.18);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--samsung-blue), #4662d9, var(--orange));
+      content: "";
+    }
+
+    .welcome { padding: 48px 42px 30px; }
+
+    .kicker {
+      color: var(--samsung-blue);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .welcome-copy {
+      max-width: 650px;
+      margin: 18px auto 0;
+      color: #38404c;
+      font-size: 1.03rem;
+    }
+
+    .welcome-copy span { display: block; }
+    .welcome-copy span + span { margin-top: 4px; }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .detail { min-height: 92px; padding: 21px 18px; }
+    .detail + .detail { border-left: 1px solid var(--line); }
+
+    .detail-label {
+      display: block;
+      color: var(--soft-muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      display: block;
+      margin-top: 6px;
+      color: var(--text);
+      font-size: 0.96rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .resources { padding: 38px 42px 30px; }
+
+    h2 {
+      color: var(--text);
+      font-size: 1.28rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .resource-copy {
+      max-width: 560px;
+      margin: 10px auto 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    /* Feedback sub-section, separated from the photo block */
+    .feedback-block {
+      margin-top: 36px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+    }
+
+    .feedback-block h2 { font-size: 1.16rem; }
+
+    /* Emphasized site-expiry notice */
+    .expiry-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 22px auto 0;
+      padding: 10px 18px;
+      border: 1px solid #ffd2ab;
+      border-radius: 999px;
+      background: #fff3e7;
+      color: #b8500a;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .expiry-notice svg { flex: 0 0 auto; }
+
+    /* Photo gallery preview */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 24px auto 0;
+      max-width: 620px;
+    }
+
+    .gallery[hidden] { display: none; }
+
+    .gallery-item {
+      position: relative;
+      display: block;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #eef1f7;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    .gallery-more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--samsung-blue), #4662d9);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 226px;
+      min-height: 48px;
+      padding: 12px 24px;
+      border: 1px solid var(--samsung-blue);
+      border-radius: 4px;
+      background: var(--samsung-blue);
+      color: #ffffff;
+      font-size: 0.96rem;
+      font-weight: 650;
+      line-height: 1.25;
+      text-decoration: none;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .button.secondary { background: #ffffff; color: var(--samsung-blue); }
+    .button:disabled { opacity: 0.55; cursor: default; }
+
+    .photo-status {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .validity-note {
+      margin-top: 18px;
+      color: var(--soft-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Privacy / data retention note */
+    .privacy-note {
+      max-width: 600px;
+      margin: 14px auto 0;
+      color: var(--soft-muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    /* Help / contact */
+    .help-note {
+      max-width: 620px;
+      margin: 26px auto 0;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .help-note a { color: var(--samsung-blue); font-weight: 650; text-decoration: none; }
+
+    .closing-note {
+      max-width: 620px;
+      margin: 18px auto 0;
+      color: #3f4650;
+      font-size: 0.98rem;
+      font-weight: 500;
+    }
+
+    .closing-note span { display: inline-block; }
+
+    .footer {
+      padding-top: 24px;
+      color: #7e8591;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      .hero { min-height: 430px; padding: 24px 16px 134px; }
+      .hero::before { background-position: center top; }
+      .hero::after {
+        background:
+          linear-gradient(180deg, rgba(7, 22, 63, 0.56), rgba(7, 22, 63, 0.2) 44%, rgba(246, 248, 251, 0.98) 100%),
+          linear-gradient(90deg, rgba(7, 22, 63, 0.58), rgba(7, 22, 63, 0.18));
+      }
+      .topline { flex-direction: column; align-items: center; gap: 16px; margin-bottom: 58px; }
+      .visitor-chip { padding-right: 13px; }
+      .site-name { font-size: 0.8rem; }
+      h1 { font-size: clamp(2.05rem, 10vw, 2.72rem); }
+      .subtitle { font-size: 1.02rem; }
+      .page { margin-top: -88px; padding: 0 16px 32px; }
+      .welcome { padding: 40px 20px 26px; }
+      .welcome-copy { font-size: 0.98rem; }
+      .details { grid-template-columns: 1fr; }
+      .detail { min-height: 0; padding: 18px 16px; }
+      .detail + .detail { border-top: 1px solid var(--line); border-left: 0; }
+      .resources { padding: 34px 20px 30px; }
+      .gallery { grid-template-columns: repeat(3, 1fr); }
+      .actions { gap: 10px; }
+      .button { width: 100%; min-width: 0; max-width: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="topline">
+        <div class="site-name">Samsung Electronics Gumi</div>
+        <div class="visitor-chip" aria-label="Customized visitor welcome">
+          <div class="visitor-logo" aria-hidden="true">
+            <img data-visitor-logo src="" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="logo-fallback" data-logo-fallback>orange</div>
+          </div>
+          <div>
+            <span class="chip-text">Prepared for</span>
+            <span class="chip-name" data-visitor-name>Orange</span>
+          </div>
+        </div>
+      </div>
+
+      <h1>Welcome to<br>Samsung Electronics Gumi</h1>
+      <p class="subtitle">Thank you for visiting us today.</p>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="panel" aria-labelledby="welcome-title">
+      <div class="welcome">
+        <p class="kicker">VIP Corporate Tour</p>
+        <p class="welcome-copy" id="welcome-title">
+          <span>It was our privilege to welcome you to Samsung Electronics Gumi.</span>
+          <span>We hope today's tour offered a meaningful view of our site and capabilities.</span>
+        </p>
+      </div>
+
+      <div class="details" aria-label="Visit details">
+        <div class="detail">
+          <span class="detail-label">Company</span>
+          <span class="detail-value" data-company>Orange</span>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Visitor</span>
+          <span class="detail-value" data-guest-name>&mdash;</span>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Visit Date</span>
+          <span class="detail-value" data-visit-date>June 15, 2026</span>
+        </div>
+      </div>
+
+      <div class="resources">
+        <h2>Today's Photos</h2>
+        <p class="resource-copy">Here are a few moments captured during your visit. Download the full set below &mdash; they're yours to keep.</p>
+
+        <!-- Thumbnails (each one downloads on tap). Auto-hidden until photos load. -->
+        <div class="gallery" data-gallery hidden></div>
+
+        <div class="actions">
+          <button class="button" type="button" data-download-all disabled>Download All Photos</button>
+        </div>
+
+        <p class="photo-status" data-photo-status>Loading photos&hellip;</p>
+
+        <p class="privacy-note" data-privacy-note>
+          These photos were taken during your visit and are shared solely for your personal use.
+        </p>
+
+        <!-- Feedback sub-section -->
+        <div class="feedback-block">
+          <h2>How Was Your Visit?</h2>
+          <p class="resource-copy">We'd love to hear your thoughts. Your feedback helps us make every future visit even better &mdash; it takes less than a minute, and all responses are kept confidential.</p>
+
+          <div class="actions">
+            <a class="button secondary" data-feedback-link href="YOUR_GOOGLE_FORM_LINK" target="_blank" rel="noopener noreferrer">
+              Share Feedback (Optional)
+            </a>
+          </div>
+        </div>
+
+        <p class="help-note" data-help-note>
+          Having trouble with the download? Contact your tour coordinator at
+          <a data-host-email href="mailto:sw717.choi@samsung.com">sw717.choi@samsung.com</a>.
+        </p>
+
+        <p class="closing-note">
+          <span>With appreciation, from all of us at</span>
+          <span>Samsung Electronics Gumi.</span>
+        </p>
+
+        <p class="expiry-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3 2"></path>
+          </svg>
+          <span data-validity-note>This website is available for 7 days.</span>
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">Samsung Electronics Gumi &middot; VIP Corporate Tour</footer>
+  </main>
+
+  <!-- JSZip: bundles all photos into a single ZIP in the browser (no server, no login) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    // ─────────────────────────────────────────────────────────────
+    //  Edit ONLY this block for each visit. Everything else is automatic.
+    // ─────────────────────────────────────────────────────────────
+    const VISIT_CONFIG = {
+      companyName: "Orange",               // visiting company
+      guestName: "Tony",                        // visitor name(s) — e.g. "Jean Dupont" or "Orange Delegation"
+      visitDateISO: "2026-06-15",          // YYYY-MM-DD — shown as "June 15, 2026"
+      logoSrc: "",                          // PUBLIC url or data:image (local C:\ paths won't load on phones)
+
+      // Site availability (static text)
+      validityNote: "This website is available for 7 days.",
+
+      // Feedback form link
+      feedbackLink: "https://docs.google.com/forms/d/e/1FAIpQLSeVbsUxDOQaSTNYFWLBavRwA2a-u0YRUihbj7cgxVjk5Q8OcA/viewform?usp=dialog",
+
+      // Contact for download help
+      hostEmail: "sw717.choi@samsung.com",
+
+      // ── PHOTOS ──────────────────────────────────────────────
+      //  Live workflow: on the day, drop the photos into your GitHub
+      //  repo's photo folder. They appear here automatically — no code edit.
+      //  (Photos load from the SAME site, so guests download with NO login.)
+      github: {
+        user: "t97138454-commits",        // GitHub username
+        repo: "orangevip",                // repo that hosts this page (GitHub Pages)
+        dir:  "photos"                    // folder in the repo holding this visit's photos
+      },
+      photos: [],                          // optional manual list, e.g. ["photos/01.jpg"] — skips auto-scan
+      zipName: "Samsung-Gumi-Visit-Photos.zip"
+    };
+    // ─────────────────────────────────────────────────────────────
+
+    const $ = (sel) => document.querySelector(sel);
+    const setText = (sel, val) => { const el = $(sel); if (el && val) el.textContent = val; };
+    const setLink = (sel, val) => { const el = $(sel); if (el && val) el.href = val; };
+
+    // Format a YYYY-MM-DD date as e.g. "June 15, 2026"
+    const formatDate = (iso) => {
+      const d = new Date(iso + "T00:00:00");
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    };
+
+    // Company + visitor
+    setText("[data-visitor-name]", VISIT_CONFIG.companyName);
+    setText("[data-company]", VISIT_CONFIG.companyName);
+    setText("[data-logo-fallback]", VISIT_CONFIG.companyName);
+    setText("[data-guest-name]", VISIT_CONFIG.guestName);
+    setText("[data-visit-date]", formatDate(VISIT_CONFIG.visitDateISO));
+
+    // Logo (only set when a real source is provided)
+    const logo = $("[data-visitor-logo]");
+    if (logo && VISIT_CONFIG.logoSrc) {
+      logo.src = VISIT_CONFIG.logoSrc;
+      logo.alt = VISIT_CONFIG.companyName + " logo";
+    } else if (logo) {
+      logo.style.display = "none";
+      logo.nextElementSibling.style.display = "flex";
+    }
+
+    // Photo access (static text)
+    setText("[data-validity-note]", VISIT_CONFIG.validityNote);
+
+    // Feedback link
+    setLink("[data-feedback-link]", VISIT_CONFIG.feedbackLink);
+
+    // Contact for download help
+    const emailEl = $("[data-host-email]");
+    if (emailEl && VISIT_CONFIG.hostEmail) {
+      emailEl.textContent = VISIT_CONFIG.hostEmail;
+      emailEl.href = "mailto:" + VISIT_CONFIG.hostEmail;
+    }
+
+    // ── Photos: no-login download from the same GitHub site ──────────
+    const nameOf = (path) => path.split("/").pop();
+
+    // Get the photo list: manual array wins, otherwise auto-scan the GitHub folder.
+    const getPhotoPaths = () => {
+      if (Array.isArray(VISIT_CONFIG.photos) && VISIT_CONFIG.photos.length) {
+        return Promise.resolve(VISIT_CONFIG.photos);
+      }
+      const gh = VISIT_CONFIG.github || {};
+      if (!gh.user || !gh.repo || !gh.dir ||
+          gh.user === "YOUR_GITHUB_USERNAME" || gh.repo === "YOUR_REPO_NAME") {
+        return Promise.resolve([]);
+      }
+      const dir = gh.dir.replace(/^\/+|\/+$/g, "");
+      const api = "https://api.github.com/repos/" + gh.user + "/" + gh.repo + "/contents/" + dir;
+      return fetch(api)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((items) => (Array.isArray(items) ? items : [])
+          .filter((it) => it.type === "file" && /\.(jpe?g|png|webp|gif)$/i.test(it.name))
+          .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+          // Load via a SAME-ORIGIN relative path so downloads need no login and no CORS.
+          .map((it) => dir + "/" + it.name))
+        .catch(() => []);
+    };
+
+    const gallery = $("[data-gallery]");
+    const statusEl = $("[data-photo-status]");
+    const downloadBtn = $("[data-download-all]");
+
+    const renderPhotos = (paths) => {
+      if (!paths.length) {
+        if (statusEl) statusEl.textContent = "Your photos will appear here shortly. Please check back in a few minutes.";
+        if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = "Photos Coming Soon"; }
+        return;
+      }
+
+      // Thumbnails — each one downloads on tap (same-origin => download attribute works).
+      paths.forEach((src, i) => {
+        const a = document.createElement("a");
+        a.className = "gallery-item";
+        a.href = src;
+        a.download = nameOf(src);
+        const im = document.createElement("img");
+        im.src = src;
+        im.alt = "Visit photo " + (i + 1);
+        im.loading = "lazy";
+        a.appendChild(im);
+        gallery.appendChild(a);
+      });
+      gallery.hidden = false;
+
+      if (statusEl) statusEl.textContent = "Tap any photo to save it, or download them all as a ZIP below.";
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = "Download All Photos (" + paths.length + ")";
+        downloadBtn.addEventListener("click", () => downloadAllAsZip(paths));
+      }
+    };
+
+    const downloadAllAsZip = (paths) => {
+      if (typeof JSZip === "undefined") {
+        alert("The ZIP download isn't available right now. Please tap each photo to save it individually.");
+        return;
+      }
+      const label = downloadBtn.textContent;
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = "Preparing ZIP…";
+      const zip = new JSZip();
+      Promise.all(paths.map((src) =>
+        fetch(src).then((r) => r.blob()).then((b) => zip.file(nameOf(src), b))
+      ))
+        .then(() => zip.generateAsync({ type: "blob" }))
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = VISIT_CONFIG.zipName || "visit-photos.zip";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = label;
+        })
+        .catch(() => {
+          alert("Something went wrong while preparing the ZIP. Please tap each photo to save it individually.");
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = label;
+        });
+    };
+
+    if (gallery) getPhotoPaths().then(renderPhotos);
+  </script>
+</body>
+</html>
