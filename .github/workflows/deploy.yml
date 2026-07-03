@@ -1,0 +1,48 @@
+name: Deploy site (with auto photo list)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate photos/manifest.json
+        run: |
+          mkdir -p photos
+          ls -1 photos 2>/dev/null \
+            | grep -iE '\.(jpe?g|png|webp|gif)$' \
+            | sort -V \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))' \
+            > photos/manifest.json
+          echo "Generated manifest:" && cat photos/manifest.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
