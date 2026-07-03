@@ -320,15 +320,104 @@
 
     .gallery-item:hover img { transform: scale(1.05); }
 
-    .gallery-more {
+    .gallery-item.selected { outline: 3px solid var(--samsung-blue); outline-offset: -3px; }
+
+    /* Selection checkbox in the corner of each thumbnail */
+    .gallery-check {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--samsung-blue), #4662d9);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 6px rgba(7, 22, 63, 0.25);
+      cursor: pointer;
     }
+
+    .gallery-check input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: var(--samsung-blue);
+    }
+
+    /* Lightbox (enlarged view) */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+      background: rgba(7, 22, 63, 0.94);
+    }
+
+    .lightbox[hidden] { display: none; }
+
+    .lb-img {
+      max-width: 92vw;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+      background: #0b1636;
+    }
+
+    .lb-close,
+    .lb-nav {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
+
+    .lb-close {
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .lb-nav {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .lb-prev { left: 12px; }
+    .lb-next { right: 12px; }
+    .lb-close:hover,
+    .lb-nav:hover { background: rgba(255, 255, 255, 0.3); }
+
+    .lb-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .lb-count { color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; font-weight: 600; }
 
     .actions {
       display: flex;
@@ -493,6 +582,7 @@
 
         <div class="actions">
           <button class="button" type="button" data-download-all disabled>Download All Photos</button>
+          <button class="button secondary" type="button" data-download-selected disabled>Download Selected (0)</button>
         </div>
 
         <p class="photo-status" data-photo-status>Loading photos&hellip;</p>
@@ -535,6 +625,18 @@
 
     <footer class="footer">Samsung Electronics Gumi &middot; VIP Corporate Tour</footer>
   </main>
+
+  <!-- Lightbox (enlarged photo view) -->
+  <div class="lightbox" data-lightbox hidden>
+    <button class="lb-close" type="button" data-lb-close aria-label="Close">&times;</button>
+    <button class="lb-nav lb-prev" type="button" data-lb-prev aria-label="Previous photo">&lsaquo;</button>
+    <img class="lb-img" data-lb-img alt="">
+    <button class="lb-nav lb-next" type="button" data-lb-next aria-label="Next photo">&rsaquo;</button>
+    <div class="lb-bar">
+      <span class="lb-count" data-lb-count></span>
+      <button class="button lb-download" type="button" data-lb-download>Download This Photo</button>
+    </div>
+  </div>
 
   <!-- JSZip: bundles all photos into a single ZIP in the browser (no server, no login) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -638,46 +740,94 @@
 
     const gallery = $("[data-gallery]");
     const statusEl = $("[data-photo-status]");
-    const downloadBtn = $("[data-download-all]");
+    const downloadAllBtn = $("[data-download-all]");
+    const downloadSelBtn = $("[data-download-selected]");
+
+    let PHOTOS = [];
+    const selected = new Set();
 
     const renderPhotos = (items) => {
+      PHOTOS = items;
       if (!items.length) {
         if (statusEl) statusEl.textContent = "Your photos will appear here shortly. Please check back in a few minutes.";
-        if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = "Photos Coming Soon"; }
+        if (downloadAllBtn) { downloadAllBtn.disabled = true; downloadAllBtn.textContent = "Photos Coming Soon"; }
+        if (downloadSelBtn) downloadSelBtn.hidden = true;
         return;
       }
 
-      // Thumbnails — each one downloads on tap (same-origin => download attribute works).
       items.forEach((it, i) => {
-        const a = document.createElement("a");
-        a.className = "gallery-item";
-        a.href = it.url;
-        a.download = it.name;
+        const fig = document.createElement("div");
+        fig.className = "gallery-item";
+
         const im = document.createElement("img");
         im.src = it.url;
         im.alt = "Visit photo " + (i + 1);
         im.loading = "lazy";
-        a.appendChild(im);
-        gallery.appendChild(a);
+        im.addEventListener("click", () => openLightbox(i)); // tap image => enlarge
+        fig.appendChild(im);
+
+        // Selection checkbox (does NOT open the lightbox)
+        const label = document.createElement("label");
+        label.className = "gallery-check";
+        label.addEventListener("click", (e) => e.stopPropagation());
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.setAttribute("aria-label", "Select photo " + (i + 1));
+        cb.addEventListener("change", () => toggleSelect(i, cb.checked, fig));
+        label.appendChild(cb);
+        fig.appendChild(label);
+
+        gallery.appendChild(fig);
       });
       gallery.hidden = false;
 
-      if (statusEl) statusEl.textContent = "Tap any photo to save it, or download them all as a ZIP below.";
-      if (downloadBtn) {
-        downloadBtn.disabled = false;
-        downloadBtn.textContent = "Download All Photos (" + items.length + ")";
-        downloadBtn.addEventListener("click", () => downloadAllAsZip(items));
-      }
+      if (statusEl) statusEl.textContent = "Tap a photo to view it larger. Tick the boxes to pick specific photos, or download them all below.";
+      downloadAllBtn.disabled = false;
+      downloadAllBtn.textContent = "Download All Photos (" + items.length + ")";
+      downloadAllBtn.addEventListener("click", () => downloadItems(items, downloadAllBtn));
+      downloadSelBtn.addEventListener("click", () => {
+        const chosen = [...selected].sort((a, b) => a - b).map((i) => PHOTOS[i]);
+        downloadItems(chosen, downloadSelBtn);
+      });
+      updateSelectedBtn();
     };
 
-    const downloadAllAsZip = (items) => {
+    const toggleSelect = (i, on, fig) => {
+      if (on) { selected.add(i); fig.classList.add("selected"); }
+      else { selected.delete(i); fig.classList.remove("selected"); }
+      updateSelectedBtn();
+    };
+
+    const updateSelectedBtn = () => {
+      const n = selected.size;
+      downloadSelBtn.textContent = "Download Selected (" + n + ")";
+      downloadSelBtn.disabled = n === 0;
+    };
+
+    // One photo => download directly; several => bundle into a ZIP.
+    const downloadItems = (items, btn) => {
+      if (!items.length) return;
+      if (items.length === 1) { downloadSingle(items[0]); return; }
+      zipAndDownload(items, btn);
+    };
+
+    const downloadSingle = (it) => {
+      const a = document.createElement("a");
+      a.href = it.url;
+      a.download = it.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    const zipAndDownload = (items, btn) => {
       if (typeof JSZip === "undefined") {
-        alert("The ZIP download isn't available right now. Please tap each photo to save it individually.");
+        alert("The ZIP download isn't available right now. Please save photos one by one.");
         return;
       }
-      const label = downloadBtn.textContent;
-      downloadBtn.disabled = true;
-      downloadBtn.textContent = "Preparing ZIP…";
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Preparing ZIP…";
       const zip = new JSZip();
       Promise.all(items.map((it) =>
         fetch(it.url).then((r) => r.blob()).then((b) => zip.file(it.name, b))
@@ -692,15 +842,58 @@
           a.click();
           a.remove();
           setTimeout(() => URL.revokeObjectURL(url), 3000);
-          downloadBtn.disabled = false;
-          downloadBtn.textContent = label;
+          btn.disabled = false;
+          btn.textContent = label;
         })
         .catch(() => {
-          alert("Something went wrong while preparing the ZIP. Please tap each photo to save it individually.");
-          downloadBtn.disabled = false;
-          downloadBtn.textContent = label;
+          alert("Something went wrong while preparing the ZIP. Please save photos one by one.");
+          btn.disabled = false;
+          btn.textContent = label;
         });
     };
+
+    // ── Lightbox (enlarged view) ──────────────────────────────────
+    const lb = $("[data-lightbox]");
+    const lbImg = $("[data-lb-img]");
+    const lbCount = $("[data-lb-count]");
+    let lbIndex = 0;
+
+    const showLb = () => {
+      const it = PHOTOS[lbIndex];
+      if (!it) return;
+      lbImg.src = it.url;
+      lbImg.alt = it.name;
+      lbCount.textContent = (lbIndex + 1) + " / " + PHOTOS.length;
+    };
+    const openLightbox = (i) => {
+      lbIndex = i;
+      showLb();
+      lb.hidden = false;
+      document.body.style.overflow = "hidden";
+    };
+    const closeLightbox = () => {
+      lb.hidden = true;
+      lbImg.src = "";
+      document.body.style.overflow = "";
+    };
+    const lbStep = (d) => {
+      lbIndex = (lbIndex + d + PHOTOS.length) % PHOTOS.length;
+      showLb();
+    };
+
+    if (lb) {
+      $("[data-lb-close]").addEventListener("click", closeLightbox);
+      $("[data-lb-prev]").addEventListener("click", () => lbStep(-1));
+      $("[data-lb-next]").addEventListener("click", () => lbStep(1));
+      $("[data-lb-download]").addEventListener("click", () => downloadSingle(PHOTOS[lbIndex]));
+      lb.addEventListener("click", (e) => { if (e.target === lb) closeLightbox(); });
+      document.addEventListener("keydown", (e) => {
+        if (lb.hidden) return;
+        if (e.key === "Escape") closeLightbox();
+        else if (e.key === "ArrowLeft") lbStep(-1);
+        else if (e.key === "ArrowRight") lbStep(1);
+      });
+    }
 
     if (gallery) getPhotos().then(renderPhotos);
   </script>
